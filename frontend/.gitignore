@@ -1,0 +1,190 @@
+# ===========================
+# Node / JavaScript / TypeScript
+# ===========================
+# dependencies
+/node_modules/
+
+# build output
+/dist/
+/build/
+/out/
+/.next/
+/.expo/
+/.vercel/
+/target/        # sometimes used by some build tools
+
+# Vite / Parcel / Snowpack caches
+/.vite/
+/.cache/
+/.parcel-cache/
+/.snowpack/
+
+# TypeScript
+/*.tsbuildinfo
+
+# coverage
+/coverage/
+/.nyc_output/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# environment variables
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vscode/.env
+
+# lockfiles — usually check these in; comment out if you want to ignore them
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ===========================
+# Editor / IDE
+# ===========================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Mac / Windows / Linux
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+Icon?
+.Trashes
+*.swp
+*~
+
+# ===========================
+# OS / Shell / Temp
+# ===========================
+/tmp
+*.temp
+*.tmp
+
+# ===========================
+# Containers / Dev tools
+# ===========================
+# Docker
+docker-compose.override.yml
+Dockerfile.build
+.docker/
+
+# Kubernetes
+.kube/
+
+# npm / npx
+.npm
+.npmrc
+
+# pnpm
+.pnpm-store
+
+# yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/patches
+.yarn-integrity
+
+# ===========================
+# Build artifacts / IDE caches
+# ===========================
+/dist/
+/build/
+/out/
+/coverage/
+/reports/
+/logs/
+/*.log
+
+# Babel and transpiler caches
+.cache-loader
+.babelcache
+
+# Next.js specific
+.next/
+.next/cache/
+
+# Gatsby
+.cache/
+public/
+
+# Expo / React Native
+.expo/
+.expo-shared/
+android/
+ios/
+*.keystore
+
+# ===========================
+# Test / CI
+# ===========================
+/.cypress/
+/cypress/videos/
+/cypress/screenshots/
+coverage/
+jest.config.*.local
+.vitest/
+
+# GitHub Actions / CI caches
+/.github/actions_cache/
+
+# ===========================
+# Secrets / Keys / Credentials
+# ===========================
+# (NEVER commit real secrets)
+aws-credentials
+*.pem
+*.key
+*.p12
+.keystore
+
+# ===========================
+# Misc / Optional
+# ===========================
+# Generated types (e.g. from codegen) — uncomment if you want to keep generated files out of repo
+# /src/generated/
+
+# Local config files (IDE or OS-specific)
+local-*.json
+
+# Lock files for editor sessions
+*.lock
+
+# Storybook
+.storybook-out/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# ===========================
+# End
+# ===========================
