@@ -1,82 +1,105 @@
 import { useContext, useState } from "react";
 import { ThemeContext } from "../context/ThemeContext";
+import { FiMenu } from "react-icons/fi";
+import { BsLightningChargeFill } from "react-icons/bs";
+import ToggleButton from "./ToggleButton";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
 
   return (
-    <nav className="w-full bg-[#0f1629]/80 backdrop-blur-xl glass-panel border-b border-blue-500/20 px-6 py-4 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto flex justify-between items-center">
-        {/* Logo */}
-        <h1 className="text-2xl md:text-3xl font-extrabold text-blue-400 drop-shadow">
-          Smart Recipe Generator
-        </h1>
-
-        {/* Desktop menu */}
-        <div className="hidden md:flex gap-8 text-blue-300">
-          <a href="/" className="hover:text-blue-400 transition-all text-lg">
-            Home
-          </a>
-
-          <a
-            href="/input"
-            className="hover:text-blue-400 transition-all text-lg"
+    <nav
+      className={`w-full backdrop-blur-xl border-b px-4 md:px-8 py-4 sticky top-0 z-50 rounded-b-3xl transition-colors duration-500
+        ${
+          isDark
+            ? "bg-[#0f1629]/80 border-blue-500/20"
+            : "bg-white/80 border-gray-200"
+        }
+      `}
+    >
+      {/* --- NAVBAR MAIN WRAPPER (3 sections) --- */}
+      <div className="w-full flex items-center justify-between">
+        {/* ========== LEFT: LOGO ========== */}
+        <div className="flex items-center gap-2 cursor-pointer transition-transform duration-300 hover:scale-105">
+          <BsLightningChargeFill
+            className={`${isDark ? "text-pink-400" : "text-pink-500"} text-3xl`}
+          />
+          <h1
+            className={`text-2xl md:text-3xl font-semibold tracking-wide
+              ${isDark ? "text-white" : "text-gray-900"}
+            `}
           >
-            Input
-          </a>
-
-          <a
-            href="/recipes"
-            className="hover:text-blue-400 transition-all text-lg"
-          >
-            Recipes
-          </a>
+            Smart Recipe
+          </h1>
         </div>
 
-        {/* Hamburger for mobile */}
+        {/* ========== CENTER: DESKTOP MENU ========== */}
+        <div
+          className={`hidden md:flex flex-1 justify-center gap-12 font-semibold text-xl
+            ${isDark ? "text-blue-200" : "text-gray-700"}
+          `}
+        >
+          {["Home", "Input", "Recipes"].map((item) => (
+            <Link
+              key={item}
+              to={item === "Home" ? "/" : "/" + item.toLowerCase()}
+              className="relative group transition-all"
+            >
+              <span className="group-hover:text-pink-500 transition-colors duration-300">
+                {item}
+              </span>
+
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-pink-500 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+          ))}
+        </div>
+
+        {/* ========== RIGHT: TOGGLE BUTTON (DESKTOP) ========== */}
+        <div className="hidden md:flex items-center">
+          <ToggleButton />
+        </div>
+
+        {/* ========== MOBILE MENU BUTTON ========== */}
         <button
-          className="md:hidden text-blue-300 text-3xl"
+          className={`md:hidden text-3xl transition-colors duration-300
+            ${isDark ? "text-blue-200" : "text-gray-700"}
+          `}
           onClick={() => setOpen(!open)}
         >
-          ☰
+          <FiMenu />
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* ========== MOBILE MENU DROPDOWN ========== */}
       {open && (
-        <div className="md:hidden mt-4 flex flex-col gap-4 text-blue-200 text-lg glass-panel p-4 rounded-lg border border-blue-500/20">
-          <a
-            href="/"
-            onClick={() => setOpen(false)}
-            className="hover:text-blue-400 transition"
-          >
-            Home
-          </a>
+        <div
+          className={`md:hidden mt-4 rounded-xl p-4 shadow-lg border animate-slideDown
+            ${
+              isDark
+                ? "bg-[#0f1629] border-blue-500/20 text-blue-200"
+                : "bg-white border-gray-200 text-gray-700"
+            }
+          `}
+        >
+          {["Home", "Input", "Recipes"].map((item) => (
+            <Link
+              key={item}
+              to={item === "Home" ? "/" : "/" + item.toLowerCase()}
+              onClick={() => setOpen(false)}
+              className="py-2 block hover:text-pink-500 transition-colors duration-300 text-lg"
+            >
+              {item}
+            </Link>
+          ))}
 
-          <a
-            href="/input"
-            onClick={() => setOpen(false)}
-            className="hover:text-blue-400 transition"
-          >
-            Input
-          </a>
-
-          <a
-            href="/recipes"
-            onClick={() => setOpen(false)}
-            className="hover:text-blue-400 transition"
-          >
-            Recipes
-          </a>
+          <div className="mt-3">
+            <ToggleButton />
+          </div>
         </div>
       )}
-      <button
-        onClick={toggleTheme}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        {theme === "dark" ? "Light Mode" : "Dark Mode"}
-      </button>
     </nav>
   );
 }
