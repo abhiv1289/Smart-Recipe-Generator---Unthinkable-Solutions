@@ -1,35 +1,81 @@
 import express from "express";
 import cors from "cors";
 import multer from "multer";
+import vision from "@google-cloud/vision";
+import dotenv from "dotenv";
+import recipeRoutes from "./routes/recipe.js";
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// multer for image upload
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("Backend is running...");
+const client = new vision.ImageAnnotatorClient({
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
 });
 
-// Recognize route (mock)
-app.post("/api/recognize", upload.array("images"), (req, res) => {
-  console.log("Received images:", req.files.length);
-  console.log("Received text ingredients:", req.body.ingredientsText);
-  console.log("Diet:", req.body.diet);
+const KNOWN_INGREDIENTS = [
+  "tomato",
+  "onion",
+  "garlic",
+  "potato",
+  "carrot",
+  "pepper",
+  "chili pepper",
+  "cabbage",
+  "lettuce",
+  "broccoli",
+  "spinach",
+  "fruit",
+  "vegetable",
+  "egg",
+  "banana",
+  "apple",
+  "lemon",
+  "lime",
+  "cheese",
+  "bread",
+  "milk",
+  "rice",
+  "flour",
+  "spice",
+  "herb",
+];
 
-  // Mock recognition: return random ingredients
-  const mockDetected = ["tomato", "onion", "garlic", "potato", "carrot"];
-  const shuffled = mockDetected.sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 3); // send 3 random
+app.post("/api/recognize", upload.array("images"), async (req, res) => {
+  try {
+    const images = req.files;
+    let detected = [];
 
-  res.json({
-    ingredients: selected,
-    message: "Mock recognition complete",
-  });
+    for (const img of images) {
+      const [result] = await client.labelDetection(img.buffer);
+      const labels = result.labelAnnotations.map((l) =>
+        l.description.toLowerCase()
+      );
+
+      const matched = labels.filter((l) =>
+        KNOWN_INGREDIENTS.some((k) => l.includes(k))
+      );
+
+      detected.push(...matched);
+    }
+
+    const userTyped = req.body.ingredientsText
+      ? req.body.ingredientsText.split(",").map((x) => x.trim().toLowerCase())
+      : [];
+
+    const final = [...new Set([...detected, ...userTyped])];
+
+    res.json({ ingredients: final, diet: req.body.diet || "none" });
+  } catch (error) {
+    console.error("Vision error:", error);
+    res.status(500).json({ error: "Vision API failed" });
+  }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+app.use("/api", recipeRoutes);
+
+app.listen(5000, () => console.log("Backend running on port 5000"));

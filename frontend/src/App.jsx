@@ -1,16 +1,21 @@
-import { Route, Routes } from "react-router";
-import Home from "./pages/Home";
+import React, { useState } from "react";
+import IngredientInput from "./components/IngredientInput";
+import RecipesPage from "./pages/RecipesPage";
+import RecipeDetail from "./pages/RecipeDetail";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-function App() {
+export default function App() {
+  const [recipes, setRecipes] = useState([]);
+
   return (
-    <>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<IngredientInput setRecipes={setRecipes} />} />
+
+        <Route path="/recipes" element={<RecipesPage recipes={recipes} />} />
+
+        <Route path="/recipe/:id" element={<RecipeDetail />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
