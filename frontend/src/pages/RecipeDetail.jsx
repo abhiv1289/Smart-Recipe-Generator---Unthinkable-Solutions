@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 export default function RecipeDetail() {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
-  const [showList, setShowList] = useState(false); // modal toggle
+  const [showList, setShowList] = useState(false);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -16,12 +16,13 @@ export default function RecipeDetail() {
     fetchRecipe();
   }, [id]);
 
-  if (!recipe) return <p className="p-6">Loading recipe...</p>;
+  if (!recipe)
+    return <p className="p-6 text-blue-300 text-lg">Loading recipe...</p>;
 
   const ingredients = recipe.extendedIngredients.map((i) => i.original);
 
   // -------------------------
-  // Download as text file
+  // Download TXT
   // -------------------------
   function downloadText() {
     const content = ingredients.join("\n");
@@ -35,7 +36,7 @@ export default function RecipeDetail() {
   }
 
   // -------------------------
-  // Download as PDF
+  // Download PDF
   // -------------------------
   function downloadPDF() {
     const doc = new jsPDF();
@@ -51,59 +52,71 @@ export default function RecipeDetail() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">{recipe.title}</h1>
+    <div className="min-h-screen px-6 py-10 text-blue-200">
+      <div className="max-w-4xl mx-auto glass-panel p-8 rounded-xl shadow-xl">
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-extrabold text-blue-400 drop-shadow mb-6">
+          {recipe.title}
+        </h1>
 
-      <img
-        src={recipe.image}
-        alt={recipe.title}
-        className="w-full h-72 object-cover rounded"
-      />
+        {/* Image */}
+        <img
+          src={recipe.image}
+          alt={recipe.title}
+          className="w-full h-64 md:h-80 object-cover rounded-xl mb-6 border border-blue-400/30"
+        />
 
-      <h2 className="text-xl font-semibold mt-6">Ingredients</h2>
-      <ul className="list-disc ml-6 mt-2">
-        {recipe.extendedIngredients.map((i) => (
-          <li key={i.id}>{i.original}</li>
-        ))}
-      </ul>
+        {/* Ingredients */}
+        <h2 className="text-2xl font-bold text-blue-300 mb-3">Ingredients</h2>
+        <ul className="list-disc ml-6 text-blue-200/90 space-y-1">
+          {ingredients.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
 
-      <h2 className="text-xl font-semibold mt-6">Instructions</h2>
-      <div className="mt-2">
-        {recipe.analyzedInstructions.length > 0 ? (
-          <ol className="list-decimal ml-6">
-            {recipe.analyzedInstructions[0].steps.map((step) => (
-              <li key={step.number} className="mb-2">
-                {step.step}
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p>No instructions available.</p>
-        )}
+        {/* Instructions */}
+        <h2 className="text-2xl font-bold text-blue-300 mt-8 mb-3">
+          Instructions
+        </h2>
+        <div className="text-blue-200/90">
+          {recipe.analyzedInstructions?.length > 0 ? (
+            <ol className="list-decimal ml-6 space-y-2">
+              {recipe.analyzedInstructions[0].steps.map((step) => (
+                <li key={step.number}>{step.step}</li>
+              ))}
+            </ol>
+          ) : (
+            <p>No instructions available.</p>
+          )}
+        </div>
+
+        {/* Nutrition */}
+        <h2 className="text-2xl font-bold text-blue-300 mt-8 mb-2">
+          Nutrition Facts
+        </h2>
+        <p className="text-blue-200/90">
+          <strong>Calories:</strong> {recipe.nutrition.nutrients[0]?.amount}{" "}
+          kcal
+        </p>
+
+        {/* Button */}
+        <button
+          className="mt-8 px-6 py-3 bg-blue-600 text-white rounded-lg neon-glow hover:scale-105 transition-transform"
+          onClick={() => setShowList(true)}
+        >
+          Generate Shopping List
+        </button>
       </div>
-
-      <h2 className="text-xl font-semibold mt-6">Nutrition Facts</h2>
-      <p className="mt-2 text-gray-700">
-        <strong>Calories:</strong> {recipe.nutrition.nutrients[0]?.amount} kcal
-      </p>
-
-      {/* SHOPPING LIST BUTTON */}
-      <button
-        className="px-4 py-2 bg-green-600 text-white rounded mt-6"
-        onClick={() => setShowList(true)}
-      >
-        Generate Shopping List
-      </button>
 
       {/* --------------------- MODAL --------------------- */}
       {showList && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="glass-panel p-6 rounded-xl w-full max-w-md border border-blue-500/20">
+            <h2 className="text-2xl font-bold text-blue-300 mb-4">
               {recipe.title} – Shopping List
             </h2>
 
-            <ul className="list-disc ml-6 mb-4">
+            <ul className="list-disc ml-6 mb-6 space-y-1">
               {ingredients.map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
@@ -111,13 +124,14 @@ export default function RecipeDetail() {
 
             <div className="flex gap-3">
               <button
-                className="px-3 py-2 bg-blue-600 text-white rounded"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg neon-glow hover:scale-105 transition"
                 onClick={downloadText}
               >
                 Download TXT
               </button>
+
               <button
-                className="px-3 py-2 bg-red-600 text-white rounded"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg neon-glow hover:scale-105 transition"
                 onClick={downloadPDF}
               >
                 Download PDF
@@ -125,7 +139,7 @@ export default function RecipeDetail() {
             </div>
 
             <button
-              className="mt-4 px-3 py-2 bg-gray-300 rounded w-full"
+              className="mt-5 px-4 py-2 bg-gray-500/40 text-white rounded-lg w-full hover:bg-gray-500/60 transition"
               onClick={() => setShowList(false)}
             >
               Close

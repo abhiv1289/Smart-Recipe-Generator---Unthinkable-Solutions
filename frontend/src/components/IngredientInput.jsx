@@ -18,7 +18,7 @@ export default function IngredientInput({ setRecipes }) {
     const previews = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
-      detected: null, // will be filled after TF.js detection
+      detected: null,
     }));
 
     setImages((prev) => [...prev, ...previews]);
@@ -55,8 +55,8 @@ export default function IngredientInput({ setRecipes }) {
       });
 
       const data = await res.json();
-      console.log(data);
-      // Step 2: Fetch recipes
+
+      // Fetch recipes
       const recipeRes = await fetch("http://localhost:5000/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,8 +67,8 @@ export default function IngredientInput({ setRecipes }) {
       });
 
       const recipeData = await recipeRes.json();
-      console.log(recipeData);
       setRecipes(recipeData.recipes);
+
       navigate("/recipes");
     } catch (err) {
       console.error(err);
@@ -79,11 +79,21 @@ export default function IngredientInput({ setRecipes }) {
   }
 
   return (
-    <div className="space-y-4">
-      {loading && <p className="text-blue-600 mt-2">Generating recipes...</p>}
-      {/* ------------------ Image Upload ------------------ */}
-      <div>
-        <label className="block text-sm font-medium mb-1">
+    <div className="max-w-3xl mx-auto mt-10 glass-panel p-8 rounded-xl shadow-xl text-blue-200">
+
+      <h2 className="text-3xl md:text-4xl font-bold mb-6 text-blue-400 drop-shadow">
+        Add Your Ingredients
+      </h2>
+
+      {loading && (
+        <p className="text-blue-400 neon-glow mb-4 text-lg">
+          Generating recipes...
+        </p>
+      )}
+
+      {/* ------------------ Upload Photos ------------------ */}
+      <div className="mb-6">
+        <label className="block text-sm font-semibold mb-2 text-blue-300">
           Upload ingredient photos
         </label>
 
@@ -92,21 +102,23 @@ export default function IngredientInput({ setRecipes }) {
           accept="image/*"
           multiple
           onChange={handleImageChange}
+          className="w-full p-2 border border-blue-500/30 bg-transparent rounded-lg text-blue-200"
         />
 
-        <div className="flex gap-3 mt-3 flex-wrap">
+        <div className="flex gap-4 mt-4 flex-wrap">
           {images.map((img, i) => (
-            <div key={i} className="flex flex-col items-center">
+            <div
+              key={i}
+              className="flex flex-col items-center p-2 rounded-lg border border-blue-400/20 bg-white/5 backdrop-blur"
+            >
               <img
                 src={img.url}
                 alt="preview"
-                className="w-24 h-24 object-cover rounded-md shadow-sm"
+                className="w-24 h-24 object-cover rounded-lg border border-blue-500/30"
                 onLoad={async (e) => {
-                  // Detect only once
                   if (!img.detected) {
                     const food = await detectFoodFromImage(e.target);
 
-                    // Update state properly
                     setImages((prev) => {
                       const updated = [...prev];
                       updated[i] = { ...updated[i], detected: food };
@@ -117,7 +129,7 @@ export default function IngredientInput({ setRecipes }) {
               />
 
               {img.detected && (
-                <p className="text-sm mt-1 text-green-600">{img.detected}</p>
+                <p className="text-sm mt-1 text-green-400">{img.detected}</p>
               )}
             </div>
           ))}
@@ -125,35 +137,39 @@ export default function IngredientInput({ setRecipes }) {
       </div>
 
       {/* ------------------ Typed Ingredients ------------------ */}
-      <div>
-        <label className="block text-sm font-medium mb-1">
+      <div className="mb-6">
+        <label className="block text-sm font-semibold mb-2 text-blue-300">
           Type ingredients
         </label>
 
         {textIngredients.map((val, idx) => (
           <input
             key={idx}
-            className="w-full p-2 border rounded mb-2"
+            className="w-full p-3 mb-2 rounded-lg bg-transparent border border-blue-500/30 text-blue-200"
             value={val}
             placeholder="e.g., tomato, onion"
             onChange={(e) => handleTextChange(idx, e.target.value)}
           />
         ))}
 
-        <button className="text-sm underline" onClick={addTextInput}>
+        <button
+          className="text-sm underline text-blue-400 hover:text-blue-300 transition"
+          onClick={addTextInput}
+        >
           + add another
         </button>
       </div>
 
       {/* ------------------ Diet ------------------ */}
-      <div>
-        <label className="block text-sm font-medium mb-1">
+      <div className="mb-6">
+        <label className="block text-sm font-semibold mb-2 text-blue-300">
           Dietary preference
         </label>
+
         <select
           value={diet}
           onChange={(e) => setDiet(e.target.value)}
-          className="p-2 border rounded"
+          className="w-full p-3 rounded-lg bg-transparent border border-blue-500/30 text-blue-200"
         >
           <option value="none">None</option>
           <option value="vegetarian">Vegetarian</option>
@@ -163,14 +179,12 @@ export default function IngredientInput({ setRecipes }) {
       </div>
 
       {/* ------------------ Button ------------------ */}
-      <div className="pt-4">
-        <button
-          onClick={handleRecognize}
-          className="px-4 py-2 rounded bg-indigo-600 text-white"
-        >
-          Recognize & suggest recipes
-        </button>
-      </div>
+      <button
+        onClick={handleRecognize}
+        className="mt-4 px-6 py-3 w-full md:w-auto bg-blue-600 text-white rounded-lg neon-glow hover:scale-105 transition-transform"
+      >
+        Recognize & Suggest Recipes
+      </button>
     </div>
   );
 }
