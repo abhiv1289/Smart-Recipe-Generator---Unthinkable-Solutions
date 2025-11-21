@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
     <nav className="w-full bg-[#0f1629]/80 backdrop-blur-xl glass-panel border-b border-blue-500/20 px-6 py-4 sticky top-0 z-50">
@@ -69,6 +71,12 @@ export default function Navbar() {
           </a>
         </div>
       )}
+      <button
+        onClick={toggleTheme}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+      </button>
     </nav>
   );
 }
