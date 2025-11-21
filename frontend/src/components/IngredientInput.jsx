@@ -7,6 +7,7 @@ export default function IngredientInput({ setRecipes }) {
   const [textIngredients, setTextIngredients] = useState([""]);
   const [diet, setDiet] = useState("none");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // -----------------------------
   // Upload Images
@@ -41,6 +42,7 @@ export default function IngredientInput({ setRecipes }) {
   // -----------------------------
   async function handleRecognize() {
     const form = new FormData();
+    setLoading(true);
 
     images.forEach((img) => form.append("images", img.file));
     form.append("ingredientsText", textIngredients.filter(Boolean).join(","));
@@ -71,11 +73,14 @@ export default function IngredientInput({ setRecipes }) {
     } catch (err) {
       console.error(err);
       alert("Recognition failed.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="space-y-4">
+      {loading && <p className="text-blue-600 mt-2">Generating recipes...</p>}
       {/* ------------------ Image Upload ------------------ */}
       <div>
         <label className="block text-sm font-medium mb-1">

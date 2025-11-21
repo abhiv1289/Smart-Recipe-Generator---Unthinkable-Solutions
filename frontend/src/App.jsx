@@ -1,21 +1,28 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import Navbar from "./components/Navbar";
+import { Route, Routes } from "react-router";
+import Home from "./pages/Home";
 import IngredientInput from "./components/IngredientInput";
 import RecipesPage from "./pages/RecipesPage";
 import RecipeDetail from "./pages/RecipeDetail";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Footer from "./components/Footer";
 
 export default function App() {
   const [recipes, setRecipes] = useState([]);
 
   return (
-    <Router>
+    <>
+      <Navbar />
       <Routes>
-        <Route path="/" element={<IngredientInput setRecipes={setRecipes} />} />
-
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/input"
+          element={<IngredientInput setRecipes={setRecipes} />}
+        />
         <Route path="/recipes" element={<RecipesPage recipes={recipes} />} />
-
         <Route path="/recipe/:id" element={<RecipeDetail />} />
       </Routes>
-    </Router>
+      <Footer />
+    </>
   );
 }
