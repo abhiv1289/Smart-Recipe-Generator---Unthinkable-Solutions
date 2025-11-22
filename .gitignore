@@ -108,16 +108,6 @@ Dockerfile.build
 !.yarn/patches
 .yarn-integrity
 
-# ===========================
-# Build artifacts / IDE caches
-# ===========================
-/dist/
-/build/
-/out/
-/coverage/
-/reports/
-/logs/
-/*.log
 
 # Babel and transpiler caches
 .cache-loader
