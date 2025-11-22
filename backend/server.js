@@ -9,16 +9,14 @@ dotenv.config();
 
 const app = express();
 
-// ⭐ CORS FIX — Full CORS Allow + Preflight
 app.use(
   cors({
-    origin: "*", // Allow ALL domains (Netlify, local, Render)
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ⭐ Handle preflight requests
 app.options("*", cors());
 
 app.use(express.json());
@@ -60,9 +58,6 @@ const KNOWN_INGREDIENTS = [
   "herb",
 ];
 
-// -------------------------
-// 📌 Image Recognition Route
-// -------------------------
 app.post("/api/recognize", upload.array("images"), async (req, res) => {
   try {
     const images = req.files ?? [];
@@ -94,12 +89,6 @@ app.post("/api/recognize", upload.array("images"), async (req, res) => {
   }
 });
 
-// -------------------------
-// 📌 Recipes Route
-// -------------------------
 app.use("/api", recipeRoutes);
 
-// -------------------------
-// 📌 Start Server
-// -------------------------
 app.listen(5000, () => console.log("Backend running on port 5000"));
