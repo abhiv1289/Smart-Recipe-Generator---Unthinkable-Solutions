@@ -16,7 +16,13 @@ export default function RecipeDetail() {
 
   useEffect(() => {
     async function fetchRecipe() {
-      const res = await fetch(`http://localhost:5000/api/recipe/${id}`);
+      const res = await fetch(
+        `${
+          import.meta.env.MODE === "development"
+            ? import.meta.env.BASE_URL_DEV
+            : import.meta.env.BASE_URL_PROD
+        }/recipe/${id}`
+      );
       const data = await res.json();
       setRecipe(data.recipe);
     }
