@@ -12,6 +12,7 @@ export default function IngredientInput({ setRecipes }) {
 
   const { theme } = useContext(ThemeContext);
   const isDark = theme === "dark";
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   // Upload images
   function handleImageChange(e) {
@@ -45,35 +46,21 @@ export default function IngredientInput({ setRecipes }) {
     form.append("diet", diet);
 
     try {
-      const res = await fetch(
-        `${
-          import.meta.env.MODE === "development"
-            ? import.meta.env.BASE_URL_DEV
-            : import.meta.env.BASE_URL_PROD
-        }/recognize`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
+      const res = await fetch(`${API_BASE}/recognize`, {
+        method: "POST",
+        body: form,
+      });
 
       const data = await res.json();
 
-      const recipeRes = await fetch(
-        `${
-          import.meta.env.MODE === "development"
-            ? import.meta.env.BASE_URL_DEV
-            : import.meta.env.BASE_URL_PROD
-        }/recipes`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ingredients: data.ingredients,
-            diet: data.diet,
-          }),
-        }
-      );
+      const recipeRes = await fetch(`${API_BASE}/recipes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredients: data.ingredients,
+          diet: data.diet,
+        }),
+      });
 
       const recipeData = await recipeRes.json();
       setRecipes(recipeData.recipes);

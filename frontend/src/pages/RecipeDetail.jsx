@@ -14,15 +14,11 @@ export default function RecipeDetail() {
   // your uploaded image as fallback
   const fallbackImg = "/mnt/data/c95da042-e03f-49b5-b678-ea9f517293f5.png";
 
+  const API_BASE = import.meta.env.VITE_API_BASE;
+
   useEffect(() => {
     async function fetchRecipe() {
-      const res = await fetch(
-        `${
-          import.meta.env.MODE === "development"
-            ? import.meta.env.BASE_URL_DEV
-            : import.meta.env.BASE_URL_PROD
-        }/recipe/${id}`
-      );
+      const res = await fetch(`${API_BASE}/recipe/${id}`);
       const data = await res.json();
       setRecipe(data.recipe);
     }
