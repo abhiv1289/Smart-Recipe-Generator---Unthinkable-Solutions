@@ -8,15 +8,30 @@ import recipeRoutes from "./routes/recipe.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// ⭐ CORS FIX — Full CORS Allow + Preflight
+app.use(
+  cors({
+    origin: "*", // Allow ALL domains (Netlify, local, Render)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// ⭐ Handle preflight requests
+app.options("*", cors());
+
 app.use(express.json());
 
+// Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Google Vision Client
 const client = new vision.ImageAnnotatorClient({
   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
 });
 
+// Known ingredient list
 const KNOWN_INGREDIENTS = [
   "tomato",
   "onion",
@@ -45,9 +60,12 @@ const KNOWN_INGREDIENTS = [
   "herb",
 ];
 
+// -------------------------
+// 📌 Image Recognition Route
+// -------------------------
 app.post("/api/recognize", upload.array("images"), async (req, res) => {
   try {
-    const images = req.files;
+    const images = req.files ?? [];
     let detected = [];
 
     for (const img of images) {
@@ -76,6 +94,12 @@ app.post("/api/recognize", upload.array("images"), async (req, res) => {
   }
 });
 
+// -------------------------
+// 📌 Recipes Route
+// -------------------------
 app.use("/api", recipeRoutes);
 
+// -------------------------
+// 📌 Start Server
+// -------------------------
 app.listen(5000, () => console.log("Backend running on port 5000"));
