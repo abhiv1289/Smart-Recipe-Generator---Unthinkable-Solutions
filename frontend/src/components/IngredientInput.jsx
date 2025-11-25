@@ -8,6 +8,7 @@ export default function IngredientInput({ setRecipes }) {
   const [textIngredients, setTextIngredients] = useState([""]);
   const [diet, setDiet] = useState("none");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const [dragActive, setDragActive] = useState(false); // ⭐ ADDED
   const fileInputRef = React.useRef(null);
@@ -61,8 +62,10 @@ export default function IngredientInput({ setRecipes }) {
   }
 
   // Recognize
+  // Recognize (ONLY detect items, do NOT generate recipes or navigate)
   async function handleRecognize() {
     const form = new FormData();
+    setLoadingMessage("Detecting ingredients...");
     setLoading(true);
 
     images.forEach((img) => form.append("images", img.file));
@@ -77,19 +80,20 @@ export default function IngredientInput({ setRecipes }) {
 
       const data = await res.json();
 
-      const recipeRes = await fetch(`${API_BASE}/recipes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ingredients: data.ingredients,
-          diet: data.diet,
-        }),
-      });
+      // Update detected ingredient names under images
+      if (data.ingredients && data.ingredients.length > 0) {
+        setImages((prev) => {
+          const updated = [...prev];
+          data.ingredients.forEach((name, index) => {
+            if (updated[index]) {
+              updated[index].detected = name;
+            }
+          });
+          return updated;
+        });
+      }
 
-      const recipeData = await recipeRes.json();
-      setRecipes(recipeData.recipes);
-
-      navigate("/recipes");
+      alert("Ingredients recognized successfully!");
     } catch (err) {
       console.error(err);
       alert("Recognition failed.");
@@ -100,6 +104,7 @@ export default function IngredientInput({ setRecipes }) {
 
   // Generate Recipes (auto-detect if needed)
   async function handleGenerate() {
+    setLoadingMessage("Generating recipes...");
     setLoading(true);
 
     try {
@@ -171,11 +176,11 @@ export default function IngredientInput({ setRecipes }) {
         {loading && (
           <p
             className={`
-              mb-4 text-center animate-pulse text-lg font-semibold
-              ${isDark ? "text-blue-300" : "text-blue-600"}
-            `}
+      mb-4 text-center animate-pulse text-lg font-semibold
+      ${isDark ? "text-blue-300" : "text-blue-600"}
+    `}
           >
-            Generating recipes...
+            {loadingMessage}
           </p>
         )}
 
