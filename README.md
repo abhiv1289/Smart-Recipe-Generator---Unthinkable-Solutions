@@ -11,7 +11,7 @@ Add your screenshots inside `assets/screenshots/`.
 
 ## Home Page
 
-![Home](assets/screenshots/home.png)
+![Home](Screenshots/Home.png)
 
 ## Ingredient Input Page
 
