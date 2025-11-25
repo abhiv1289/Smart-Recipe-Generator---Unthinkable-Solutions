@@ -8,8 +8,11 @@ export default function IngredientInput({ setRecipes }) {
   const [textIngredients, setTextIngredients] = useState([""]);
   const [diet, setDiet] = useState("none");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
+  const [dragActive, setDragActive] = useState(false); // ⭐ ADDED
+  const fileInputRef = React.useRef(null);
+
+  const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
   const isDark = theme === "dark";
   const API_BASE = import.meta.env.VITE_API_BASE;
@@ -23,6 +26,27 @@ export default function IngredientInput({ setRecipes }) {
       detected: null,
     }));
     setImages((prev) => [...prev, ...previews]);
+  }
+
+  // ⭐ DRAG & DROP HANDLERS (NEW)
+  function handleDragOver(e) {
+    e.preventDefault();
+    setDragActive(true);
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    setDragActive(false);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    setDragActive(false);
+
+    if (e.dataTransfer.files.length > 0) {
+      handleImageChange({ target: { files: e.dataTransfer.files } });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   // Text input
@@ -81,7 +105,6 @@ export default function IngredientInput({ setRecipes }) {
     try {
       let ingredients = [];
 
-      // If detection not done, auto-detect by calling /recognize internally
       const needDetection = images.some((img) => !img.detected);
 
       if (needDetection) {
@@ -101,14 +124,12 @@ export default function IngredientInput({ setRecipes }) {
         const recognizeData = await recognizeRes.json();
         ingredients = recognizeData.ingredients;
       } else {
-        // Already detected earlier
         ingredients = [
           ...images.map((img) => img.detected).filter(Boolean),
           ...textIngredients.filter(Boolean),
         ];
       }
 
-      // Now generate recipes normally
       const recipeRes = await fetch(`${API_BASE}/recipes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -138,7 +159,6 @@ export default function IngredientInput({ setRecipes }) {
           border ${isDark ? "border-white/10" : "border-white/20"}
         `}
       >
-        {/* Header */}
         <h2
           className={`
             text-4xl font-extrabold mb-6 text-center drop-shadow-lg
@@ -159,18 +179,37 @@ export default function IngredientInput({ setRecipes }) {
           </p>
         )}
 
+        {/* ⭐ DRAG & DROP BOX (NEW) */}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`
+            mb-4 p-8 border-2 border-dashed rounded-2xl text-center transition
+            ${
+              dragActive
+                ? "border-blue-500 bg-blue-500/10"
+                : "border-gray-400/40"
+            }
+            ${isDark ? "bg-white/5" : "bg-gray-100/50"}
+          `}
+        >
+          <p className="text-lg opacity-80">Drag & Drop images here</p>
+          <p className="text-sm opacity-60">or use the upload button below</p>
+        </div>
+
         {/* Upload Photos */}
         <div className="mb-8">
           <label
-            className={`
-              block text-lg font-semibold mb-2
-              ${isDark ? "text-blue-200" : "text-gray-800"}
-            `}
+            className={`block text-lg font-semibold mb-2 ${
+              isDark ? "text-blue-200" : "text-gray-800"
+            }`}
           >
             Upload ingredient photos
           </label>
 
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             multiple
@@ -190,7 +229,7 @@ export default function IngredientInput({ setRecipes }) {
               <div
                 key={i}
                 className={`
-                  flex flex-col items-center p-3 rounded-xl shadow-md backdrop-blur-xl
+                  relative flex flex-col items-center p-3 rounded-xl shadow-md backdrop-blur-xl
                   ${
                     isDark
                       ? "border border-blue-500/20 bg-white/5"
@@ -198,6 +237,16 @@ export default function IngredientInput({ setRecipes }) {
                   }
                 `}
               >
+                <button
+                  onClick={() => {
+                    setImages((prev) => prev.filter((_, index) => index !== i));
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md hover:bg-red-600"
+                >
+                  ×
+                </button>
+
                 <img
                   src={img.url}
                   alt="preview"
@@ -227,10 +276,9 @@ export default function IngredientInput({ setRecipes }) {
         {/* Typed Ingredients */}
         <div className="mb-8">
           <label
-            className={`
-              block text-lg font-semibold mb-2
-              ${isDark ? "text-blue-200" : "text-gray-800"}
-            `}
+            className={`block text-lg font-semibold mb-2 ${
+              isDark ? "text-blue-200" : "text-gray-800"
+            }`}
           >
             Type ingredients
           </label>
@@ -245,8 +293,8 @@ export default function IngredientInput({ setRecipes }) {
                 w-full p-3 mb-3 rounded-xl transition
                 ${
                   isDark
-                    ? "bg-white/10 border border-blue-500/30 text-blue-100 placeholder-blue-300/40 focus:ring-blue-600"
-                    : "bg-white/50 border border-blue-300/40 text-gray-800 placeholder-gray-500 focus:ring-blue-400"
+                    ? "bg-white/10 border border-blue-500/30 text-blue-100 placeholder-blue-300/40"
+                    : "bg-white/50 border border-blue-300/40 text-gray-800 placeholder-gray-500"
                 }
               `}
             />
@@ -254,22 +302,20 @@ export default function IngredientInput({ setRecipes }) {
 
           <button
             onClick={addTextInput}
-            className={`
-              text-sm font-semibold transition
-              ${isDark ? "text-blue-300" : "text-blue-600"}
-            `}
+            className={`text-sm font-semibold ${
+              isDark ? "text-blue-300" : "text-blue-600"
+            }`}
           >
             + Add another ingredient
           </button>
         </div>
-
         {/* Diet Preference */}
         <div className="mb-8">
           <label
             className={`
-              block text-lg font-semibold mb-2
-              ${isDark ? "text-blue-200" : "text-gray-800"}
-            `}
+      block text-lg font-semibold mb-2
+      ${isDark ? "text-blue-200" : "text-gray-800"}
+    `}
           >
             Dietary preference
           </label>
@@ -278,13 +324,13 @@ export default function IngredientInput({ setRecipes }) {
             value={diet}
             onChange={(e) => setDiet(e.target.value)}
             className={`
-              w-full p-3 rounded-xl transition
-              ${
-                isDark
-                  ? "bg-white/10 border border-blue-500/30 text-blue-100 focus:ring-blue-600"
-                  : "bg-white/50 border border-blue-300/40 text-gray-800 focus:ring-blue-400"
-              }
-            `}
+      w-full p-3 rounded-xl transition
+      ${
+        isDark
+          ? "bg-white/10 border border-blue-500/30 text-blue-100 focus:ring-blue-600"
+          : "bg-white/50 border border-blue-300/40 text-gray-800 focus:ring-blue-400"
+      }
+    `}
           >
             <option value="none">None</option>
             <option value="vegetarian">Vegetarian</option>
@@ -293,36 +339,32 @@ export default function IngredientInput({ setRecipes }) {
           </select>
         </div>
 
-        {/* Buttons Section */}
+        {/* Buttons */}
         <div className="flex flex-col gap-4 mt-6">
-          {/* Recognize Button */}
           <button
             onClick={handleRecognize}
             className={`
-      w-full py-4 text-xl font-bold rounded-2xl shadow-lg
-      transition-transform hover:scale-[1.03]
-      ${
-        isDark
-          ? "bg-purple-600 hover:bg-purple-700 text-white"
-          : "bg-purple-500 hover:bg-purple-600 text-white"
-      }
-    `}
+              w-full py-4 text-xl font-bold rounded-2xl shadow-lg
+              ${
+                isDark
+                  ? "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+              }
+            `}
           >
             Recognize Ingredients
           </button>
 
-          {/* Generate Recipes Button */}
           <button
             onClick={handleGenerate}
             className={`
-      w-full py-4 text-xl font-bold rounded-2xl shadow-lg
-      transition-transform hover:scale-[1.03]
-      ${
-        isDark
-          ? "bg-blue-700 hover:bg-blue-800 text-white"
-          : "bg-blue-600 hover:bg-blue-700 text-white"
-      }
-    `}
+              w-full py-4 text-xl font-bold rounded-2xl shadow-lg
+              ${
+                isDark
+                  ? "bg-blue-700 hover:bg-blue-800 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }
+            `}
           >
             Generate Recipes
           </button>
