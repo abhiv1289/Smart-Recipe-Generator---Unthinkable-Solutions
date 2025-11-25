@@ -74,6 +74,35 @@ export default function IngredientInput({ setRecipes }) {
     }
   }
 
+  // Generate Recipes Only (without recognition)
+  async function handleGenerate() {
+    setLoading(true);
+
+    try {
+      const recipeRes = await fetch(`${API_BASE}/recipes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredients: [
+            ...images.map((img) => img.detected).filter(Boolean),
+            ...textIngredients.filter(Boolean),
+          ],
+          diet,
+        }),
+      });
+
+      const recipeData = await recipeRes.json();
+      setRecipes(recipeData.recipes);
+
+      navigate("/recipes");
+    } catch (err) {
+      console.error(err);
+      alert("Recipe generation failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-6 py-16">
       <div
@@ -237,21 +266,40 @@ export default function IngredientInput({ setRecipes }) {
           </select>
         </div>
 
-        {/* Submit Button */}
-        <button
-          onClick={handleRecognize}
-          className={`
-            mt-4 w-full py-4 text-xl font-bold rounded-2xl shadow-lg
-            transition-transform hover:scale-[1.03]
-            ${
-              isDark
-                ? "bg-blue-700 hover:bg-blue-800 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }
-          `}
-        >
-          Recognize & Suggest Recipes
-        </button>
+        {/* Buttons Section */}
+        <div className="flex flex-col gap-4 mt-6">
+          {/* Recognize Button */}
+          <button
+            onClick={handleRecognize}
+            className={`
+      w-full py-4 text-xl font-bold rounded-2xl shadow-lg
+      transition-transform hover:scale-[1.03]
+      ${
+        isDark
+          ? "bg-purple-600 hover:bg-purple-700 text-white"
+          : "bg-purple-500 hover:bg-purple-600 text-white"
+      }
+    `}
+          >
+            Recognize Ingredients
+          </button>
+
+          {/* Generate Recipes Button */}
+          <button
+            onClick={handleGenerate}
+            className={`
+      w-full py-4 text-xl font-bold rounded-2xl shadow-lg
+      transition-transform hover:scale-[1.03]
+      ${
+        isDark
+          ? "bg-blue-700 hover:bg-blue-800 text-white"
+          : "bg-blue-600 hover:bg-blue-700 text-white"
+      }
+    `}
+          >
+            Generate Recipes
+          </button>
+        </div>
       </div>
     </div>
   );
