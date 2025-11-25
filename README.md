@@ -11,26 +11,28 @@ Add your screenshots inside `assets/screenshots/`.
 
 ## Home Page
 
-![Home](assets/screenshots/home.png)
+![Home](Screenshots/Home.png)
 
 ## Ingredient Input Page
 
-![Input](assets/screenshots/input.png)
+![Input](Screenshots/Input1.png)
+![Input](Screenshots/Input2.png)
 
 ## Recipes Page
 
-![Recipes](assets/screenshots/recipes.png)
+![Recipes](Screenshots/RecipeShow.png)
 
 ## Recipe Detail Page
 
-![Details](assets/screenshots/detail.png)
+![Details](Screenshots/RecipePage.png)
+![Details](Screenshots/RecipePage1.png)
+![Details](Screenshots/RecipePage2.png)
 
 ---
 
 # 🌐 Live Links
 
-Frontend (Netlify): https://your-netlify-url  
-Backend (Render): https://your-render-url
+Frontend (Netlify): https://smartrecipe1.netlify.app/
 
 ---
 
