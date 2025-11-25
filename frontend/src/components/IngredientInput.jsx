@@ -74,19 +74,46 @@ export default function IngredientInput({ setRecipes }) {
     }
   }
 
-  // Generate Recipes Only (without recognition)
+  // Generate Recipes (auto-detect if needed)
   async function handleGenerate() {
     setLoading(true);
 
     try {
+      let ingredients = [];
+
+      // If detection not done, auto-detect by calling /recognize internally
+      const needDetection = images.some((img) => !img.detected);
+
+      if (needDetection) {
+        const form = new FormData();
+        images.forEach((img) => form.append("images", img.file));
+        form.append(
+          "ingredientsText",
+          textIngredients.filter(Boolean).join(",")
+        );
+        form.append("diet", diet);
+
+        const recognizeRes = await fetch(`${API_BASE}/recognize`, {
+          method: "POST",
+          body: form,
+        });
+
+        const recognizeData = await recognizeRes.json();
+        ingredients = recognizeData.ingredients;
+      } else {
+        // Already detected earlier
+        ingredients = [
+          ...images.map((img) => img.detected).filter(Boolean),
+          ...textIngredients.filter(Boolean),
+        ];
+      }
+
+      // Now generate recipes normally
       const recipeRes = await fetch(`${API_BASE}/recipes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ingredients: [
-            ...images.map((img) => img.detected).filter(Boolean),
-            ...textIngredients.filter(Boolean),
-          ],
+          ingredients,
           diet,
         }),
       });
