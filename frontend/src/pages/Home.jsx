@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import GenerateButton from "../components/GenerateButton";
+import { Link } from "react-router";
 
 export default function Home() {
   const { theme } = useContext(ThemeContext);
@@ -34,8 +35,8 @@ export default function Home() {
         </p>
 
         {/* Button */}
-        <a
-          href="/input"
+        <Link
+          to="/input"
           className="
             inline-block mt-10 px-8 py-3 md:px-10 md:py-4 
             text-lg md:text-xl font-semibold 
@@ -44,7 +45,7 @@ export default function Home() {
           "
         >
           <GenerateButton />
-        </a>
+        </Link>
       </div>
     </div>
   );
